@@ -1,0 +1,14 @@
+- name: Log dropped incoming packages
+  iptables:
+    chain: INPUT
+    action: append
+    state: present
+    limit: 2/second
+    limit_burst: 20
+    log_prefix: "IPTABLES:INFO: "
+    log_level: warning
+
+- name: Add a line to a file if the file does not exist, without passing regexp
+  lineinfile:
+    path: /etc/rsyslog.conf
+    line: ":msg, contains, 'IPTABLES:INFO: '       /var/log/iptables.log"

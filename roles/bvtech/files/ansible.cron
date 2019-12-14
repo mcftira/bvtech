@@ -1,0 +1,1 @@
+0 3 * * * root /usr/bin/freshclam ; /usr/bin/clamscan / --recursive=yes -i | mail -s clamav_log_transporter1875c.mylabserver.com gabipikats@gmail.com -

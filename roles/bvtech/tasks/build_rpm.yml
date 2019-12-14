@@ -1,0 +1,6 @@
+- name: Build rpm
+  command:
+    argv:
+      - rpmdev-setuptree
+      - rpmbuild -ba hello-world.spec
+

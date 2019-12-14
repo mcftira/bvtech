@@ -1,0 +1,52 @@
+- name: (OSSEC) Retrieve latest version of OSSEC from GitHub
+  git:
+    repo: https://github.com/ossec/ossec-hids.git
+    dest: /opt/ossec-hids
+    update: yes
+  register: gitupdate
+
+- name: (OSSEC) Install OSSEC-HIDS in local mode
+  expect:
+    command: "/bin/bash /opt/ossec-hids/install.sh"
+    timeout: 300
+    responses:
+      en/br: "en"
+      Press ENTER: ""
+      What kind of installation do you want: "{{ ossec_install_type }}"
+      Choose where to install the OSSEC HIDS: "{{ ossec_dir }}"
+      Do you want e-mail notification: "{{ ossec_email }}"
+      e-mail address: "{{ ossec_email_address }}"
+      Do you want to use it: "{{ ossec_detected_smtp_use }}"
+      SMTP server ip: "{{ ossec_smtp_server }}"
+      Do you want to run the integrity check daemon: "{{ ossec_integritycheck_daemon }}"
+      Do you want to run the rootkit detection engine: "{{ ossec_rootkit_engine }}"
+      Do you want to enable active response: "{{ ossec_active_response }}"
+      Do you want to enable the firewall-drop response: "{{ ossec_firewalldrop_response }}"
+      Do you want to add more IPs to the white list: "n"
+  become: yes
+  notify: restart ossec
+  when: not ossec.stat.exists
+  register: ossecinstall
+
+- name: (OSSEC) Update OSSEC-HIDS
+  expect:
+    command: "/bin/bash /opt/ossec-hids/install.sh"
+    responses:
+      en/br: "en"
+      Press ENTER: ""
+      Do you want to update it: "y"
+      Do you want to update the rules: "y"
+  notify: restart ossec
+  become: yes
+
+- name: (OSSEC) Start OSSEC service
+  service:
+    name: ossec
+    state: started
+
+- name: (OSSEC) Whitelist Ansible Controller IP address
+  lineinfile:
+    path: /var/ossec/etc/ossec.conf
+    insertafter: '</white_list>'
+    state: present
+    line: "    <white_list>{{ ansible_controller_ip }}</white_list>"

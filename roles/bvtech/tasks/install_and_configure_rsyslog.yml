@@ -1,0 +1,11 @@
+- name: Get rsyslog repo file
+  get_url:
+    url: http://rpms.adiscon.com/rsyslogall.repo
+    dest: /etc/yum.repos.d/
+    mode: '0644'
+
+- name: Install rsyslog
+  yum:
+    name: rsyslog
+    enablerepo: rsyslog-v8-stable
+    state: present
